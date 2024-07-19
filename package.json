@@ -1,5 +1,5 @@
 {
-  "name": "medusa-plugin-abandoned-cart",
+  "name": "medusa-plugin-abandoned-cart-mailchimp-var",
   "version": "2.0.56",
   "description": "Medusa plugin for abandoned cart tracking and recovery",
   "author": "Lucjan Grzesik (https://github.com/luluhoc)",
@@ -42,6 +42,7 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-typescript": "^7.24.1",
     "@eslint/js": "^9.2.0",
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
     "@medusajs/admin": "^7.1.14",
     "@medusajs/cache-inmemory": "^1.8.10",
     "@medusajs/event-bus-local": "^1.9.8",
