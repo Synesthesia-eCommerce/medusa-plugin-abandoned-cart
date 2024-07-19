@@ -9,7 +9,7 @@ yarn-error.log
 
 coverage
 .vscode
-/src
+
 ./tsconfig.tsbuildinfo
 package-lock.json
 yarn.lock
@@ -17,16 +17,10 @@ medusa-db.sql
 build
 .cache
 .github
-src
-/src
-./
-src/*
-src/
+
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-src/types.ts
-src/types.ts
