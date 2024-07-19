@@ -1,12 +1,14 @@
-import { TransactionBaseService } from "@medusajs/medusa";
-import Mailchimp = require("@mailchimp/mailchimp_marketing");
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { TransactionBaseService, Logger } from "@medusajs/medusa";
+import * as mailchimp from "@mailchimp/mailchimp_marketing";
 import * as crypto from "crypto";
-import { MailchimpPluginOptions } from "../types";
-
-class MailchimpMarketingService extends TransactionBaseService {
+import { MailchimpPluginOptions, AddOrUpdateListMemberPayload } from "../types";
+import { Lifetime } from "awilix";
+export default class MailchimpMarketingService extends TransactionBaseService {
+  static LIFE_TIME = Lifetime.TRANSIENT;
   protected options_: MailchimpPluginOptions;
-  protected mailchimp_: Mailchimp;
-
+  protected mailchimp_: any;
+  logger: Logger;
   /**
    * @param {Object} options - options defined in `medusa-config.js`
    *    e.g.
@@ -17,10 +19,17 @@ class MailchimpMarketingService extends TransactionBaseService {
    */
   constructor(_, options: MailchimpPluginOptions) {
     super(_, options);
-
     this.options_ = options;
-
-    this.mailchimp_ = new Mailchimp(options.api_key);
+    try {
+      this.mailchimp_ = mailchimp.setConfig({
+        apiKey: this.options_.api_key,
+        server: this.options_.server,
+      });
+    } catch (error) {
+      this.mailchimp_ = undefined;
+      this.logger.error("Mailchimp API key is invalid");
+    }
+    this.logger = _.logger;
   }
 
   /**
@@ -29,7 +38,10 @@ class MailchimpMarketingService extends TransactionBaseService {
    * @param {Object} data - additional data (see https://mailchimp.com/developer/marketing/api/list-merges/)
    * @return {Promise} result of newsletter subscription
    */
-  async subscribeNewsletterAdd(email: string, data: any) {
+  async subscribeNewsletterAdd(
+    email: string,
+    data: AddOrUpdateListMemberPayload,
+  ) {
     return this.mailchimp_.post(
       `/lists/${this.options_.newsletter_list_id}/members`,
       {
@@ -37,6 +49,13 @@ class MailchimpMarketingService extends TransactionBaseService {
         status: "subscribed",
         ...data,
       },
+    );
+  }
+
+  async getMemberInfo(email: string) {
+    return this.mailchimp_.lists.getListMember(
+      this.options_.newsletter_list_id,
+      email,
     );
   }
 
@@ -49,9 +68,8 @@ class MailchimpMarketingService extends TransactionBaseService {
 
   async subscribeNewsletterUpdate(
     email: string,
-    data: any,
     statusIfNew?: string,
-    status?: string,
+    data?: AddOrUpdateListMemberPayload,
   ) {
     const lowercase = email.toLowerCase();
     const hash = crypto.createHash("md5").update(lowercase).digest("hex");
@@ -61,11 +79,21 @@ class MailchimpMarketingService extends TransactionBaseService {
       {
         email_address: email,
         status_if_new: statusIfNew || "subscribed",
-        status: status || "subscribed",
         ...data,
       },
     );
   }
+  async addTagToMember(
+    email: string,
+    tags: { name: string; status: string }[],
+  ) {
+    const lowercase = email.toLowerCase();
+    const hash = crypto.createHash("md5").update(lowercase).digest("hex");
+    return this.mailchimp_.post(
+      `/lists/${this.options_.newsletter_list_id}/members/${hash}/tags`,
+      {
+        tags,
+      },
+    );
+  }
 }
-
-export default MailchimpMarketingService;

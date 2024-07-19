@@ -35,6 +35,7 @@ const AbandonedCarts = () => {
   const { mutate, isLoading: PostLoading } = useAdminCustomPost<
     {
       id: string;
+      email?: string;
     },
     {
       success: boolean;

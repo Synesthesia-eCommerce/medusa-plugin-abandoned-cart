@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { LineItem } from "@medusajs/medusa";
 
 export interface BasePluginOptions {
@@ -92,4 +93,143 @@ export interface TransformedCart {
 export type MailchimpPluginOptions = {
   newsletter_list_id: string;
   api_key: string;
+  server: string;
 };
+
+type MergeFields = {
+  [key: string]: unknown; // Adjust as needed, e.g., { FNAME: string; LNAME: string; }
+};
+
+type Interests = {
+  [interestId: string]: boolean;
+};
+
+type MarketingPermissions = {
+  marketing_permission_id: string;
+  enabled: boolean;
+};
+
+export interface AddOrUpdateListMemberPayload {
+  email_address: string;
+  status_if_new?:
+    | "subscribed"
+    | "unsubscribed"
+    | "cleaned"
+    | "pending"
+    | "transactional";
+  email_type?: "html" | "text";
+  status?:
+    | "subscribed"
+    | "unsubscribed"
+    | "cleaned"
+    | "pending"
+    | "transactional";
+  merge_fields?: MergeFields;
+  interests?: Interests;
+  language?: string;
+  vip?: boolean;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
+  marketing_permissions?: MarketingPermissions[];
+  ip_signup?: string;
+  timestamp_signup?: string;
+  ip_opt?: string;
+  timestamp_opt?: string;
+}
+
+interface Tag {
+  name: string;
+  status: "active" | "inactive";
+}
+
+interface AddOrRemoveMemberTagsPayload {
+  tags: Tag[];
+}
+
+interface EcommerceData {
+  total_revenue: number;
+  number_of_orders: number;
+  currency_code: string;
+}
+
+interface Stats {
+  avg_open_rate: number;
+  avg_click_rate: number;
+  ecommerce_data: EcommerceData;
+}
+
+interface Location {
+  latitude: number;
+  longitude: number;
+  gmtoff: number;
+  dstoff: number;
+  country_code: string;
+  timezone: string;
+  region: string;
+}
+
+interface MarketingPermission {
+  marketing_permission_id: string;
+  text: string;
+  enabled: boolean;
+}
+
+interface LastNote {
+  note_id: number;
+  created_at: string;
+  created_by: string;
+  note: string;
+}
+
+interface Tag {
+  id: number;
+  name: string;
+}
+
+interface Link {
+  rel: string;
+  href: string;
+  method: string;
+  targetSchema: string;
+  schema: string;
+}
+
+export interface AddOrUpdateListMemberResponse {
+  id: string;
+  email_address: string;
+  unique_email_id: string;
+  contact_id: string;
+  full_name: string;
+  web_id: number;
+  email_type: string;
+  status:
+    | "subscribed"
+    | "unsubscribed"
+    | "cleaned"
+    | "pending"
+    | "transactional";
+  unsubscribe_reason: string;
+  consents_to_one_to_one_messaging: boolean;
+  merge_fields: MergeFields;
+  interests: Interests;
+  stats: Stats;
+  ip_signup: string;
+  timestamp_signup: string;
+  ip_opt: string;
+  timestamp_opt: string;
+  member_rating: number;
+  last_changed: string;
+  language: string;
+  vip: boolean;
+  email_client: string;
+  location: Location;
+  marketing_permissions: MarketingPermission[];
+  last_note: LastNote;
+  source: string;
+  tags_count: number;
+  tags: Tag[];
+  list_id: string;
+  _links: Link[];
+}
