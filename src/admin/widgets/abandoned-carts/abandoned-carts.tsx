@@ -55,9 +55,9 @@ const AbandonedCarts = () => {
     setCurrentPage(currentPage + 1);
   };
 
-  const handleAction = (id: string) => {
+  const handleAction = (id: string, email: string) => {
     mutate(
-      { id },
+      { id, email },
       {
         onSuccess: (data) => {
           console.log(data);
@@ -165,7 +165,7 @@ const AbandonedCarts = () => {
                         disabled={PostLoading}
                         variant="transparent"
                         onClick={() => {
-                          handleAction(cart?.id);
+                          handleAction(cart?.id, cart?.email);
                         }}
                       >
                         Send Email

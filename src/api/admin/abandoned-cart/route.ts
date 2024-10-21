@@ -1,6 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/medusa";
 import AbandonedCartService from "../../../services/abandoned-cart";
-import MailchimpMarketingService from "../../../services/mailchimp";
 import { AddOrUpdateListMemberResponse } from "../../../types";
 export async function GET(
   req: MedusaRequest,
@@ -43,9 +42,7 @@ export async function POST(
     const abandonedCartService: AbandonedCartService = req.scope.resolve(
       "abandonedCartService",
     );
-    const mailchimpService: MailchimpMarketingService = req.scope.resolve(
-      "mailchimpMarketingService",
-    );
+    const mailchimpService = req.scope.resolve("mailchimpService");
     if (!req.body.id) {
       throw new Error("No id provided");
     }
@@ -60,20 +57,20 @@ export async function POST(
         "pending",
       );
     if (
-      addMemberToList.status !== "cleaned" &&
-      addMemberToList.status !== "subscribed" &&
-      addMemberToList.status !== "unsubscribed" &&
-      addMemberToList.status !== "pending"
+      !["cleaned", "subscribed", "unsubscribed", "pending"].includes(
+        addMemberToList.status,
+      )
     ) {
       throw new Error("Error adding member to list");
     }
 
-    const addTagToMember = await mailchimpService.addTagToMember(
-      req.body.email,
-      [{ name: "abadoned_cart", status: "active" }],
-    );
-    console.log(addTagToMember);
+    console.log("addMTL", addMemberToList);
 
+    const addTagtoMember = await mailchimpService.addMemberTags(
+      req.body.email,
+      [{ name: "abandoned_cart", status: "active" }],
+    );
+    console.log("addTagtoMember", addTagtoMember);
     res.status(200).json(r);
   } catch (error) {
     res.status(400).json({ error: error.message });
